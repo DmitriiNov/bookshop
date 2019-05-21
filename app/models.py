@@ -44,6 +44,12 @@ class CustomerBill(db.Model):
     order = db.relationship("OrderFromCustomer", back_populates="bill")
     sum = db.Column(db.Integer)
 
+class Warehouse(db.Model):
+    __tablename__ = 'warehouse'
+    id = db.Column(db.Integer, primary_key=True)
+    BookId = db.Column(db.Integer, ForeignKey("books.id"), unique=True)
+    book = db.relationship("OrderFromCustomer", back_populates="bill")
+    numberOfBooks = db.Column(db.Integer, default=0)
 
 ###############
 
@@ -55,7 +61,7 @@ class User(UserMixin, db.Model):
     phone = db.Column(db.String(15), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     address = db.Column(db.String(150), index=True)
-    isEmployee = db.Column(db.Boolean, unique=False)
+    isEmployee = db.Column(db.Boolean, unique=False, default=0)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -90,6 +96,7 @@ class Book(db.Model):
     providerOrder = db.relationship("OrderToProvider", secondary=OrderPBooks, back_populates="books")
     customerOrder = db.relationship("OrderToCustomer", secondary=OrderCBooks, back_populates="books")
     providerPrices = db.relationship("Provider", secondary=ProvPrice, back_populates="books")
+    bill = db.relationship("Warehouse", uselist=False, back_populates="book")
 
 
 class Genre(db.Model):
