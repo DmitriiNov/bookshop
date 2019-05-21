@@ -22,7 +22,7 @@ class RegistrationForm(FlaskForm):
     address = StringField('Address', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
-    phone = StringField('Phone number ( without +7)', validators=[DataRequired()])
+    phone = StringField('Phone number (without +7)', validators=[DataRequired()])
 
     submit = SubmitField('Register')
 
@@ -30,5 +30,5 @@ class RegistrationForm(FlaskForm):
         a = User.query.filter_by(phone = field.data).first()
         if a is not None:
             raise ValidationError('Please use a different phone number.')
-        if len(field) == 10:
+        if len(str(field)) != 10:
             raise ValidationError('Invalid phone number.')
