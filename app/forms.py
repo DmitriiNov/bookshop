@@ -5,6 +5,10 @@ from app.models import User
 from wtforms.fields.html5 import TelField
 import phonenumbers
 
+
+
+
+
 class LoginForm(FlaskForm):
     phone = StringField('Phone', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -18,22 +22,13 @@ class RegistrationForm(FlaskForm):
     address = StringField('Address', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])
-    phone = StringField('Phone number (+7)', validators=[DataRequired()])
+    phone = StringField('Phone number ( without +7)', validators=[DataRequired()])
 
     submit = SubmitField('Register')
 
-
-    # def validate_phone(form, field):
-    #     user = User.query.filter_by(phone = field).first()
-    #     if user is not None:
-    #         raise ValidationError('Please use a different phone number.')
-    #     if len(field.data) > 12:
-    #         raise ValidationError('Invalid phone number.')
-    #     try:
-    #         input_number = phonenumbers.parse(field.data)
-    #         if not (phonenumbers.is_valid_number(input_number)):
-    #             raise ValidationError('Invalid phone number.')
-    #     except:
-    #         input_number = phonenumbers.parse("+7"+field.data)
-    #         if not (phonenumbers.is_valid_number(input_number)):
-    #             raise ValidationError('Invalid phone number.')
+    def validate_phone(form, field):
+        a = User.query.filter_by(phone = field.data).first()
+        if a is not None:
+            raise ValidationError('Please use a different phone number.')
+        if len(field) == 10:
+            raise ValidationError('Invalid phone number.')

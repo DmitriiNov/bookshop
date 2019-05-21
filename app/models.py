@@ -58,7 +58,7 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False)
     surname = db.Column(db.String(64), index=True, unique=False)
-    phone = db.Column(db.String(15), index=True, unique=True)
+    phone = db.Column(db.String(15), index=True)
     password_hash = db.Column(db.String(128))
     address = db.Column(db.String(150), index=True)
     isEmployee = db.Column(db.Boolean, unique=False, default=False)
