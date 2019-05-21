@@ -5,6 +5,18 @@ from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User
 from werkzeug.urls import url_parse
 
+def login_required(role = False):
+    def wrapper(fn):
+        def decorated_view(*args, **kwargs):
+            if not current_user.is_authenticated:
+               return app.login_manager.unauthorized()
+            urole = current_user.isEmployee
+            if ((role != False) and (urole != True)):
+                return app.login_manager.unauthorized()
+            return fn(*args, **kwargs)
+        return decorated_view
+    return wrapper
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -24,6 +36,11 @@ def index():
     ]
     return render_template("index.html", title='Home Page', posts=posts)
 
+
+@app.route('/special')
+@login_required(role=True)
+def index():
+    return render_template("special.html", title='Home Page')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -61,3 +78,18 @@ def register():
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('reg.html', title='Register', form=form)
+
+@app.route('/regforemployee', methods=['GET', 'POST'])
+def registerforemployee():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        user = User(phone=form.phone.data,
+        name=form.name.data, surname=form.surname.data, address=form.address.data, isEmployee=True)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Congratulations, you are now a registered user!')
+        return redirect(url_for('login'))
+    return render_template('regforemployee.html', title='Register', form=form)
