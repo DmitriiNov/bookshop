@@ -36,11 +36,23 @@ class Post(db.Model):
         return '<Post {}>'.format(self.body)
 
 
+# class Book_Author(db.Model):
+#     AuthorId = db.Column(db.Integer, ForeignKey("Author.id"))
+#     BookId = db.Column(db.Integer, ForeignKey("Book.id"))
+#
+# class Book_Genre(db.Model):
+#     GenreId = db.Column(db.Integer, ForeignKey("Genre.id"))
+#     BookId = db.Column(db.Integer, ForeignKey("Book.id"))
 
-
-
-
-
+# class OrderProviderBooks(db.Model):
+#     BookId = db.Column(db.Integer, ForeignKey("Book.id"))
+#     OrderPId = db.Column(db.Integer, ForeignKey("OrderToProvider.id"))
+#     numberOfBooks = db.Column(db.Integer)
+#
+# class OrderCustomerBooks(db.Model):
+#     BookId = db.Column(db.Integer, ForeignKey("Book.id"))
+#     OrderCId = db.Column(db.Integer, ForeignKey("OrderFromCustomer.id"))
+#     numberOfBooks = db.Column(db.Integer)
 
 class ProviderBill(db.model):
     OrderPId = db.Column(db.Integer, ForeignKey("OrderToProvider.id"), unique=True,)
@@ -50,7 +62,10 @@ class CustomerBill(db.model):
     OrderCId = db.Column(db.Integer, ForeignKey("OrderFromCustomer.id"), unique=True)
     sum = db.Column(db.Integer)
 
-
+# class ProviderPrices(db.Model):
+#     ProviderId = db.Column(db.Integer, ForeignKey("Provider.id"))
+#     BookId = db.Column(db.Integer, ForeignKey("Book.id"))
+#     price = db.Column(db.Integer)
 
 class Warehouse(db.Model):
     BookId = db.Column(db.Integer, ForeignKey("Book.id"), unique=True)
