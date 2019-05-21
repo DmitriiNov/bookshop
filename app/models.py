@@ -5,10 +5,31 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy import  ForeignKey
 
 ##Отношения##
-BookAuthorT = db.Table('BookAuthorTTT', db.Base.metadata,
+##many to many##
+BookAuthor = db.Table('book_author',
     db.Column("AuthorId", db.Integer, ForeignKey("authors.id")),
-    db.Column("BookIdooo", db.Integer, ForeignKey("books.id")))
+    db.Column("BookId", db.Integer, ForeignKey("books.id")))
 
+BookGenre = db.Table('book_genre',
+    db.Column("GenreId", db.Integer, ForeignKey("authors.id")),
+    db.Column("BookId", db.Integer, ForeignKey("books.id")))
+
+
+
+class OrderProviderBooks(db.Model):
+    BookId = db.Column(db.Integer, ForeignKey("Book.id"))
+    OrderPId = db.Column(db.Integer, ForeignKey("OrderToProvider.id"))
+    numberOfBooks = db.Column(db.Integer)
+
+class OrderCustomerBooks(db.Model):
+    BookId = db.Column(db.Integer, ForeignKey("Book.id"))
+    OrderCId = db.Column(db.Integer, ForeignKey("OrderFromCustomer.id"))
+    numberOfBooks = db.Column(db.Integer)
+
+class ProviderPrices(db.Model):
+    ProviderId = db.Column(db.Integer, ForeignKey("Provider.id"))
+    BookId = db.Column(db.Integer, ForeignKey("Book.id"))
+    price = db.Column(db.Integer)
 
 ###############
 
@@ -42,7 +63,7 @@ class Author(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False)
     surname = db.Column(db.String(64), index=True, unique=False)
-    books = db.relationship("Book", secondary=BookAuthorT, back_populates="authors")
+    books = db.relationship("Book", secondary=BookAuthor, back_populates="authors")
 
 class Book(db.Model):
     __tablename__ = "books"
@@ -50,11 +71,14 @@ class Book(db.Model):
     name = db.Column(db.String(100), index=True, unique=False)
     price = db.Column(db.Integer, index=True, unique=False)
     year = db.Column(db.Integer, index=True, unique=False)
-    books = db.relationship("Author", secondary=BookAuthorT, back_populates="books")
+    authors = db.relationship("Author", secondary=BookAuthor, back_populates="books")
+    genres = db.relationship("Genre", secondary=BookGenre, back_populates="books")
 
 class Genre(db.Model):
+    __tablename__ = "genres"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False)
+    books = db.relationship("Book", secondary=BookGenre, back_populates="genres")
 
 class OrderFromCustomer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
