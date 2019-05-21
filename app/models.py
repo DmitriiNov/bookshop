@@ -28,6 +28,22 @@ ProvPrice = db.Table('ProviderPrices',
     db.Column("ProviderId", db.Integer, ForeignKey("provider.id")),
     db.Column("BookId", db.Integer, ForeignKey("books.id")),
     db.Column("Price", db.Integer))
+##one to one##
+
+class ProviderBill(db.Model):
+    __tablename__ = 'pbill'
+    id = db.Column(db.Integer, primary_key=True)
+    OrderPId = db.Column(db.Integer, ForeignKey("orderProvider.id"), unique=True)
+    order = db.relationship("OrderToProvider", back_populates="bill")
+    sum = db.Column(db.Integer)
+
+class CustomerBill(db.Model):
+    __tablename__ = 'cbill'
+    id = db.Column(db.Integer, primary_key=True)
+    OrderCId = db.Column(db.Integer, ForeignKey("orderCustomer.id"), unique=True)
+    order = db.relationship("OrderFromCustomer", back_populates="bill")
+    sum = db.Column(db.Integer)
+
 
 ###############
 
@@ -88,6 +104,7 @@ class OrderFromCustomer(db.Model):
     CustomerId = db.Column(db.Integer)
     EmployeeId = db.Column(db.Integer)
     books = db.relationship("Book", secondary=OrderCBooks, back_populates="customerOrder")
+    bill = db.relationship("CustomerBill", uselist=False, back_populates="order")
 
 class OrderToProvider(db.Model):
     __tablename__ = "orderProvider"
@@ -95,6 +112,7 @@ class OrderToProvider(db.Model):
     ProviderId = db.Column(db.Integer)
     EmployeeId = db.Column(db.Integer)
     books = db.relationship("Book", secondary=OrderPBooks, back_populates="providerOrder")
+    bill = db.relationship("ProviderBill", uselist=False, back_populates="order")
 
 class Provider(db.Model):
     __tablename__ = "provider"
