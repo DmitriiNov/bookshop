@@ -14,22 +14,20 @@ BookGenre = db.Table('book_genre',
     db.Column("GenreId", db.Integer, ForeignKey("authors.id")),
     db.Column("BookId", db.Integer, ForeignKey("books.id")))
 
+OrderPBooks = db.Table('OrderProviderBooks',
+    db.Column("OrderPId", db.Integer, ForeignKey("orderProvider.id")),
+    db.Column("BookId", db.Integer, ForeignKey("books.id")),
+    db.Column("numberOfBooks", db.Integer))
 
+OrderCBooks = db.Table('OrderCustomerBooks',
+    db.Column("OrderCId", db.Integer, ForeignKey("orderCustomer.id")),
+    db.Column("BookId", db.Integer, ForeignKey("books.id")),
+    db.Column("numberOfBooks", db.Integer))
 
-class OrderProviderBooks(db.Model):
-    BookId = db.Column(db.Integer, ForeignKey("Book.id"))
-    OrderPId = db.Column(db.Integer, ForeignKey("OrderToProvider.id"))
-    numberOfBooks = db.Column(db.Integer)
-
-class OrderCustomerBooks(db.Model):
-    BookId = db.Column(db.Integer, ForeignKey("Book.id"))
-    OrderCId = db.Column(db.Integer, ForeignKey("OrderFromCustomer.id"))
-    numberOfBooks = db.Column(db.Integer)
-
-class ProviderPrices(db.Model):
-    ProviderId = db.Column(db.Integer, ForeignKey("Provider.id"))
-    BookId = db.Column(db.Integer, ForeignKey("Book.id"))
-    price = db.Column(db.Integer)
+ProvPrice = db.Table('ProviderPrices',
+    db.Column("ProviderId", db.Integer, ForeignKey("provider.id")),
+    db.Column("BookId", db.Integer, ForeignKey("books.id")),
+    db.Column("Price", db.Integer))
 
 ###############
 
@@ -73,6 +71,10 @@ class Book(db.Model):
     year = db.Column(db.Integer, index=True, unique=False)
     authors = db.relationship("Author", secondary=BookAuthor, back_populates="books")
     genres = db.relationship("Genre", secondary=BookGenre, back_populates="books")
+    providerOrder = db.relationship("OrderToProvider", secondary=OrderPBooks, back_populates="books")
+    customerOrder = db.relationship("OrderToCustomer", secondary=OrderCBooks, back_populates="books")
+    providerPrices = db.relationship("Provider", secondary=ProvPrice, back_populates="books")
+
 
 class Genre(db.Model):
     __tablename__ = "genres"
@@ -81,18 +83,23 @@ class Genre(db.Model):
     books = db.relationship("Book", secondary=BookGenre, back_populates="genres")
 
 class OrderFromCustomer(db.Model):
+    __tablename__ = "orderCustomer"
     id = db.Column(db.Integer, primary_key=True)
     CustomerId = db.Column(db.Integer)
     EmployeeId = db.Column(db.Integer)
+    books = db.relationship("Book", secondary=OrderCBooks, back_populates="customerOrder")
 
 class OrderToProvider(db.Model):
+    __tablename__ = "orderProvider"
     id = db.Column(db.Integer, primary_key=True)
     ProviderId = db.Column(db.Integer)
     EmployeeId = db.Column(db.Integer)
-
+    books = db.relationship("Book", secondary=OrderPBooks, back_populates="providerOrder")
 
 class Provider(db.Model):
+    __tablename__ = "provider"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), index=True, unique=False)
     phone = db.Column(db.String(15), index=True, unique=True)
     adress = db.Column(db.String(100), index=True, unique=False)
+    books = db.relationship("Book", secondary=ProvPrice, back_populates="providerPrices")
