@@ -42,7 +42,7 @@ class Author(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=False)
     surname = db.Column(db.String(64), index=True, unique=False)
-    books = db.relationship("books", secondary=BookAuthorT, back_populates="authors")
+    books = db.relationship("Book", secondary=BookAuthorT, back_populates="authors")
 
 class Book(db.Model):
     __tablename__ = "books"
@@ -50,7 +50,7 @@ class Book(db.Model):
     name = db.Column(db.String(100), index=True, unique=False)
     price = db.Column(db.Integer, index=True, unique=False)
     year = db.Column(db.Integer, index=True, unique=False)
-    books = db.relationship("authors", secondary=BookAuthorT, back_populates="books")
+    books = db.relationship("Author", secondary=BookAuthorT, back_populates="books")
 
 class Genre(db.Model):
     id = db.Column(db.Integer, primary_key=True)
