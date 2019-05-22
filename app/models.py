@@ -114,7 +114,7 @@ class Provider(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), index=True, unique=False)
     phone = db.Column(db.String(15), index=True, unique=True)
-    adress = db.Column(db.String(100), index=True, unique=False)
+    address = db.Column(db.String(100), index=True, unique=False)
     books = db.relationship("Book", secondary=ProvPrice, back_populates="providerPrices")
 
 class Book(db.Model):

@@ -1,8 +1,8 @@
 from flask import render_template, flash, redirect, url_for, request
 from app import app, db
-from app.forms import LoginForm, RegistrationForm
+from app.forms import LoginForm, RegistrationForm, AddAuthor, AddGenre, AddProvider
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User
+from app.models import User, Provider, Genre, Author
 from werkzeug.urls import url_parse
 
 def login_required(role = False):
@@ -37,10 +37,33 @@ def index():
     return render_template("index.html", title='Home Page', posts=posts)
 
 
-@app.route('/special')
+@app.route('/special', methods=['GET', 'POST'])
 @login_required(role=True)
 def index():
-    return render_template("special.html", title='Home Page')
+    GenreForm = AddGenre(prefix="GenreForm")
+    AuthorForm = AddAuthor(prefix="AuthorForm")
+    ProviderForm = AddProvider(prefix="ProviderForm")
+    if GenreForm.submit2.data and GenreForm.validate():
+        genre = Genre(name=GenreForm.name.data)
+        db.session.add(genre)
+        db.session.commit()
+        GenreForm.name.data=''
+    if AuthorForm.submit3.data and AuthorForm.validate():
+        author = Author(name=AuthorForm.name.data, surname=AuthorForm.surname.data,)
+        db.session.add(author)
+        db.session.commit()
+        AuthorForm.name.data=''
+        AuthorForm.surname.data=''
+    if ProviderForm.submit4.data and ProviderForm.validate():
+        provider = Provider(name=ProviderForm.name.data,
+        address=ProviderForm.address.data, phone=ProviderForm.phone.data,)
+        db.session.add(provider)
+        db.session.commit()
+        ProviderForm.name.data=''
+        ProviderForm.phone.data=''
+        ProviderForm.address.data=''
+    return render_template("special.html", title='Home Page', GenreForm=GenreForm,
+    AuthorForm = AuthorForm, ProviderForm = ProviderForm )
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

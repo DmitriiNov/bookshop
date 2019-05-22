@@ -1,4 +1,63 @@
 {% extends "base.html" %}
 {% block content %}
-<p>работает!!</p>
+
+<h1>Add genre</h1>
+<form action="" method="post">
+    {{ GenreForm.hidden_tag() }}
+    <p>
+        {{ GenreForm.name.label }}<br>
+        {{ GenreForm.name(size=30) }}<br>
+        {% for error in GenreForm.name.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ GenreForm.submit2() }}</p>
+</form>
+<br>
+<h1>Add author</h1>
+<form action="" method="post">
+    {{ AuthorForm.hidden_tag() }}
+    <p>
+        {{ AuthorForm.name.label }}<br>
+        {{ AuthorForm.name(size=30) }}<br>
+        {% for error in AuthorForm.name.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ AuthorForm.surname.label }}<br>
+        {{ AuthorForm.surname(size=30) }}<br>
+        {% for error in AuthorForm.surname.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ AuthorForm.submit3() }}</p>
+</form>
+<br>
+<h1>Add provider</h1>
+<form action="" method="post">
+    {{ ProviderForm.hidden_tag() }}
+    <p>
+        {{ ProviderForm.name.label }}<br>
+        {{ ProviderForm.name(size=40) }}<br>
+        {% for error in ProviderForm.name.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ ProviderForm.address.label }}<br>
+        {{ ProviderForm.address(size=80) }}<br>
+        {% for error in ProviderForm.address.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ ProviderForm.phone.label }}<br>
+        {{ ProviderForm.phone(size=10) }}<br>
+        {% for error in ProviderForm.phone.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ ProviderForm.submit4() }}</p>
+</form>
 {% endblock %}
