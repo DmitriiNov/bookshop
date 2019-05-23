@@ -10,7 +10,7 @@ import phonenumbers
 
 
 class AddBook(FlaskForm):
-    name= StringField('Phone', validators=[DataRequired()])
+    name= StringField('Name', validators=[DataRequired()])
     price= StringField('Price', validators=[DataRequired()])
     year= StringField('Year', validators=[DataRequired()])
     authors= SelectMultipleField('Authors', coerce=int, validators=[DataRequired()])
@@ -31,6 +31,11 @@ class AddProvider(FlaskForm):
     address= StringField('Address', validators=[DataRequired()])
     phone = StringField('Phone', validators=[DataRequired()])
     submit4 = SubmitField('Add provider')
+
+class Delete(FlaskForm):
+    table= SelectField('Table', coerce=int,choices=[(1,'Book'),(2,'Genre'),(3,'Author'),(4,'Provider')], validators=[DataRequired()])
+    id= StringField('ID', validators=[DataRequired()])
+    submit5 = SubmitField('Delete')
 
 class OrderUser(FlaskForm):
     phone = StringField('Phone', validators=[DataRequired()])

@@ -1,6 +1,45 @@
 {% extends "base.html" %}
 {% block content %}
-
+<h1>Add book</h1>
+<form action="" method="post">
+    {{ BookForm.hidden_tag() }}
+    <p>
+        {{ BookForm.name.label }}<br>
+        {{ BookForm.name(size=40) }}<br>
+        {% for error in BookForm.name.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ BookForm.price.label }}<br>
+        {{ BookForm.price(size=10) }}<br>
+        {% for error in BookForm.price.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ BookForm.year.label }}<br>
+        {{ BookForm.year(size=10) }}<br>
+        {% for error in BookForm.year.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ BookForm.genres.label }}<br>
+        {{ BookForm.genres(size=2) }}<br>
+        {% for error in BookForm.genres.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ BookForm.authors.label }}<br>
+        {{ BookForm.authors(size=2) }}<br>
+        {% for error in BookForm.authors.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ BookForm.submit1() }}</p>
+</form>
 <h1>Add genre</h1>
 <form action="" method="post">
     {{ GenreForm.hidden_tag() }}
@@ -60,4 +99,25 @@
     </p>
     <p>{{ ProviderForm.submit4() }}</p>
 </form>
+<br>
+<h1>Delete</h1>
+<form action="" method="post">
+    {{ DeleteForm.hidden_tag() }}
+    <p>
+        {{ DeleteForm.table.label }}<br>
+        {{ DeleteForm.table(size=3) }}<br>
+        {% for error in DeleteForm.table.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ DeleteForm.id.label }}<br>
+        {{ DeleteForm.id(size=10) }}<br>
+        {% for error in DeleteForm.id.errors %}
+        <span style="color: green;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ DeleteForm.submit5() }}</p>
+</form>
+
 {% endblock %}
