@@ -2,9 +2,13 @@ from flask import Blueprint, render_template, flash, redirect, url_for, request,
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, AddAuthor, AddGenre, AddProvider, AddBook, Delete
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User, Provider, Genre, Author, Book, BookAuthor, BookGenre
+from app.models import User, Provider, Genre, Author, Book, BookAuthor, BookGenre, OrderFromCustomer, OrderCBooks
 from werkzeug.urls import url_parse
 
+
+
+def mysort(x):
+    return x[0].id
 def login_required(role = False):
     def wrapper(fn):
         def decorated_view(*args, **kwargs):
@@ -95,7 +99,7 @@ def special():
         DeleteForm.id.data=''
         DeleteForm.table.data=[]
     return render_template("special.html", title='Home Page', GenreForm=GenreForm,
-    AuthorForm = AuthorForm, ProviderForm = ProviderForm, BookForm = BookForm, DeleteForm = DeleteForm)
+    AuthorForm = AuthorForm, ProviderForm = ProviderForm, BookForm = BookForm, DeleteForm = DeleteForm, ses=ses)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -112,7 +116,7 @@ def login():
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
-    return render_template("login.html", title='Sign in', form=form)
+    return render_template("login.html", title='Sign in', form=form, ses=ses)
 
 @app.route('/logout')
 def logout():
@@ -132,7 +136,7 @@ def register():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
-    return render_template('reg.html', title='Register', form=form)
+    return render_template('reg.html', title='Register', form=form, ses=ses)
 
 @app.route('/add', methods=['POST', 'GET'])
 def add():
@@ -144,6 +148,82 @@ def add():
         session.modified = True
         session['cart'] = []
     return redirect(url_for('index'))
+
+@app.route('/delete', methods=['POST', 'GET'])
+def delete():
+    book = Book.query.filter_by(id=request.form["del"]).first_or_404()
+    session.modified = True
+    timeses = session['cart']
+    timeses.remove(int(book.id))
+    session['cart'] = timeses
+    return redirect(url_for('cart'))
+
+@app.route('/order', methods=['POST', 'GET'])
+def make_order():
+    session.modified = True
+    if current_user.is_authenticated:
+        order = OrderFromCustomer(CustomerId=current_user.id)
+        db.session.add(order)
+        db.session.commit()
+        books =[]
+        if 'cart' in session:
+            for i in session['cart']:
+                book = Book.query.filter_by(id=i).first()
+                books.append(book)
+            booksnew = []
+            for i in set(books):
+                booksnew.append([i,books.count(i)])
+            booksnew.sort(key=mysort)
+            for i in booksnew:
+                stat = OrderCBooks.insert().values(OrderCId=order.id,
+                BookId=i[0].id, numberOfBooks=i[1])
+                db.session.execute(stat)
+            db.session.commit()
+            for i in reversed(range(0,len(session['cart']))):
+                session['cart'].pop(i)
+        return render_template('thanks.html', title='Thanks!', ses=0)
+    else:
+        return redirect(url_for('login'))
+
+
+@app.route('/deleteall', methods=['POST', 'GET'])
+def delete_all():
+    session.modified = True
+    for i in reversed(range(0,len(session['cart']))):
+        session['cart'].pop(i)
+    return redirect(url_for('cart'))
+
+@app.route('/cart', methods=['POST', 'GET'])
+def cart():
+    books = []
+    if 'cart' in session:
+        ses = len(session['cart'])
+    else:
+        ses = 0
+    if 'cart' in session:
+        for i in session['cart']:
+            book = Book.query.filter_by(id=i).first()
+            books.append(book)
+        booksnew = []
+        for i in set(books):
+            booksnew.append([i,books.count(i)])
+        booksnew.sort(key=mysort)
+        length = len(booksnew)
+    else:
+        session.modified = True
+        session['cart'] = []
+        booksnew = []
+        length = len(booksnew)
+    return render_template('cart.html', title='Cart', books=booksnew, length=length, ses=ses)
+
+
+@app.route('/profile', methods=['POST', 'GET'])
+def profile():
+    if 'cart' in session:
+        ses = len(session['cart'])
+    else:
+        ses = 0
+    return render_template('cart.html', title='Cart', ses=ses)
 
 
 @app.route('/regforemployee', methods=['GET', 'POST'])
@@ -159,4 +239,4 @@ def registerforemployee():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
-    return render_template('regforemployee.html', title='Register', form=form)
+    return render_template('regforemployee.html', title='Register', form=form, ses=ses)
