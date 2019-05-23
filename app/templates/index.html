@@ -1,8 +1,46 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Hi, {{ current_user.username }}!</h1>
-    {% for post in posts %}
-    <div><p>{{ post.author.username }} says: <b>{{ post.body }}</b></p></div>
-    {% endfor %}
+
+{% if length != 0 %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Book</th>
+      <th scope="col">Price</th>
+      <th scope="col">Year</th>
+      <th scope="col">Authors</th>
+      <th scope="col">Genres</th>
+      <th scope="col">Buy</th>
+    </tr>
+    </thead>
+    <tbody>
+      {% for book in books %}
+      <tr>
+        <td>{{ book.name }}</td>
+        <td>{{ book.price}}</td>
+        <td>{{ book.year }}</td>
+        <td>
+        {% for author in book.authors %}
+          {{ author.name +' '+ author.surname }}
+          <br>
+        {% endfor %}
+        </td>
+        <td>
+        {% for genre in book.genres %}
+          {{ genre.name }}
+          <br>
+        {% endfor %}
+        </td>
+        <td>
+          <form action="{{ url_for('add') }}" method="post">
+            <input type="hidden" name="buy" value="{{ book.id }}"/>
+            <input type="submit" class="btn btn-outline-primary" value="Add to cart!"/>
+          </form>
+        </td>
+       </tr>
+{% endfor %}
+  </tbody>
+</table>
+{% endif %}
 {% endblock %}

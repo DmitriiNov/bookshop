@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect, url_for, request
+from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, session
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, AddAuthor, AddGenre, AddProvider, AddBook, Delete
 from flask_login import current_user, login_user, logout_user, login_required
@@ -20,26 +20,20 @@ def login_required(role = False):
 @app.route('/')
 @app.route('/index')
 def index():
-    posts = [
-        {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'username': 'Susan'},
-            'body': 'The Avengers movie was so cool!'
-        },
-        {
-            'author': {'username': 'Ипполит'},
-            'body': 'Какая гадость эта ваша заливная рыба!!'
-        }
-    ]
-    return render_template("index.html", title='Home Page', posts=posts)
+
+    books = Book.query.all()
+    length = len(books)
+    session.modified = True
+    if 'cart' in session:
+        ses = len(session['cart'])
+    else:
+        ses = 0
+    return render_template("index.html", title='Home Page', books=books, length=length, ses=ses)
 
 
 @app.route('/special', methods=['GET', 'POST'])
 @login_required(role=True)
-def index():
+def special():
     genres= [(c.id, c.name) for c in Genre.query.all()]
     authors= [(c.id, (c.name+' '+c.surname)) for c in Author.query.all()]
     GenreForm = AddGenre(prefix="GenreForm")
@@ -72,12 +66,14 @@ def index():
         db.session.add(genre)
         db.session.commit()
         genres= [(c.id, c.name) for c in Genre.query.all()]
+        BookForm.genres.choices = genres
         GenreForm.name.data=''
     if AuthorForm.submit3.data and AuthorForm.validate():
         author = Author(name=AuthorForm.name.data, surname=AuthorForm.surname.data,)
         db.session.add(author)
         db.session.commit()
         authors= [(c.id, (c.name+' '+c.surname)) for c in Author.query.all()]
+        BookForm.authors.choices = authors
         AuthorForm.name.data=''
         AuthorForm.surname.data=''
     if ProviderForm.submit4.data and ProviderForm.validate():
@@ -137,6 +133,18 @@ def register():
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('reg.html', title='Register', form=form)
+
+@app.route('/add', methods=['POST', 'GET'])
+def add():
+    book = Book.query.filter_by(id=request.form["buy"]).first_or_404()
+    if 'cart' in session:
+        session.modified = True
+        session['cart'].append(book.id)
+    else:
+        session.modified = True
+        session['cart'] = []
+    return redirect(url_for('index'))
+
 
 @app.route('/regforemployee', methods=['GET', 'POST'])
 def registerforemployee():
