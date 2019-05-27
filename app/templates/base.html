@@ -14,14 +14,9 @@
         <nav class="my-2 my-md-0 mr-md-3">
           <a class="p-2 text-dark" href="{{ url_for('index') }}">Books</a>
           <a class="p-2 text-dark" href="{{ url_for('cart') }}">Cart({{ ses }})</a>
-          <a class="p-2 text-dark" href="{{ url_for('profile') }}">Profile</a>
+          <a class="btn btn-outline-primary" href="{{ url_for('profile') }}">Profile</a>
         </nav>
-        <!--Если пользователь не вошел в систему-->
-        <a class="btn btn-outline-primary" href="https://bootstrap-4.ru/docs/4.3.1/examples/pricing/#">Sign in</a>
       </div>
-
-
-
       <div class="container">
         {% block content %}{% endblock %}
         {% with messages = get_flashed_messages() %}
@@ -43,20 +38,5 @@
           </div>
         </footer>
       </div>
-
     </body>
-    <!-- <body>
-      <div>
-          Microblog:
-          <a href="{{ url_for('index') }}">Home</a>
-          {% if current_user.is_anonymous %}
-          <a href="{{ url_for('login') }}">Login</a>
-          {% else %}
-          <a href="{{ url_for('logout') }}">Logout</a>
-          {% endif %}
-      </div>
-      <hr>
-
-
-    </body> -->
 </html>

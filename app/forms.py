@@ -7,7 +7,10 @@ import phonenumbers
 
 
 
-
+class BookSearch(FlaskForm):
+    authors= SelectMultipleField('Authors', coerce=int)
+    genres= SelectMultipleField('Genres', coerce=int)
+    submit= SubmitField('Search')
 
 class AddBook(FlaskForm):
     name= StringField('Name', validators=[DataRequired()])
@@ -16,6 +19,16 @@ class AddBook(FlaskForm):
     authors= SelectMultipleField('Authors', coerce=int, validators=[DataRequired()])
     genres= SelectMultipleField('Genres', coerce=int, validators=[DataRequired()])
     submit1= SubmitField('Add book')
+
+class AddProvPrice(FlaskForm):
+    provider= SelectField('Providers', coerce=int, validators=[DataRequired()])
+    book= SelectField('Books', coerce=int, validators=[DataRequired()])
+    price= StringField('Price', validators=[DataRequired()])
+    submit6= SubmitField('Add Price')
+
+class MakePOrder(FlaskForm):
+    provider= SelectField('Choose Provider', coerce=int, validators=[DataRequired()])
+    submit7= SubmitField('Make')
 
 class AddGenre(FlaskForm):
     name= StringField('Name', validators=[DataRequired()])

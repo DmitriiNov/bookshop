@@ -14,20 +14,29 @@ BookGenre = db.Table('book_genre',
     db.Column("GenreId", db.Integer, ForeignKey("genres.id")),
     db.Column("BookId", db.Integer, ForeignKey("books.id")))
 
-OrderPBooks = db.Table('OrderProviderBooks',
-    db.Column("OrderPId", db.Integer, ForeignKey("orderProvider.id")),
-    db.Column("BookId", db.Integer, ForeignKey("books.id")),
-    db.Column("numberOfBooks", db.Integer))
+class OrderPbooks(db.Model):
+    __tablename__ = 'OrderProviderBooks'
+    OrderPId = db.Column(db.Integer, ForeignKey("orderProvider.id"), primary_key=True)
+    BookId = db.Column(db.Integer, ForeignKey("books.id"), primary_key=True)
+    numberOfBooks = db.Column( db.Integer)
+    book = db.relationship("Book", back_populates="providerOrder")
+    order = db.relationship("OrderToProvider", back_populates="books")
 
-OrderCBooks = db.Table('OrderCustomerBooks',
-    db.Column("OrderCId", db.Integer, ForeignKey("orderCustomer.id")),
-    db.Column("BookId", db.Integer, ForeignKey("books.id")),
-    db.Column("numberOfBooks", db.Integer))
+class OrderCbooks(db.Model):
+    __tablename__ = 'OrderCustomerBooks'
+    OrderCId = db.Column(db.Integer, ForeignKey("orderCustomer.id"), primary_key=True)
+    BookId = db.Column(db.Integer, ForeignKey("books.id"), primary_key=True)
+    numberOfBooks = db.Column( db.Integer)
+    book = db.relationship("Book", back_populates="customerOrder")
+    order = db.relationship("OrderFromCustomer", back_populates="books")
 
-ProvPrice = db.Table('ProviderPrices',
-    db.Column("ProviderId", db.Integer, ForeignKey("provider.id")),
-    db.Column("BookId", db.Integer, ForeignKey("books.id")),
-    db.Column("Price", db.Integer))
+class ProvPrices(db.Model):
+    __tablename__ = 'ProviderPrices'
+    ProviderId = db.Column(db.Integer, ForeignKey("provider.id"), primary_key=True)
+    BookId = db.Column(db.Integer, ForeignKey("books.id"), primary_key=True)
+    Price = db.Column(db.Integer)
+    book = db.relationship("Book", back_populates="providerPrices")
+    prov = db.relationship("Provider", back_populates="books")
 ##one to one##
 
 class ProviderBill(db.Model):
@@ -98,7 +107,7 @@ class OrderFromCustomer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     CustomerId = db.Column(db.Integer)
     EmployeeId = db.Column(db.Integer)
-    books = db.relationship("Book", secondary=OrderCBooks, back_populates="customerOrder")
+    books = db.relationship("OrderCbooks", back_populates="order")
     bill = db.relationship("CustomerBill", uselist=False, back_populates="order")
 
 class OrderToProvider(db.Model):
@@ -106,7 +115,7 @@ class OrderToProvider(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ProviderId = db.Column(db.Integer)
     EmployeeId = db.Column(db.Integer)
-    books = db.relationship("Book", secondary=OrderPBooks, back_populates="providerOrder")
+    books = db.relationship("OrderPbooks", back_populates="order")
     bill = db.relationship("ProviderBill", uselist=False, back_populates="order")
 
 class Provider(db.Model):
@@ -115,7 +124,7 @@ class Provider(db.Model):
     name = db.Column(db.String(80), index=True, unique=False)
     phone = db.Column(db.String(15), index=True, unique=True)
     address = db.Column(db.String(100), index=True, unique=False)
-    books = db.relationship("Book", secondary=ProvPrice, back_populates="providerPrices")
+    books = db.relationship("ProvPrices", back_populates="prov")
 
 class Book(db.Model):
     __tablename__ = "books"
@@ -125,7 +134,7 @@ class Book(db.Model):
     year = db.Column(db.Integer, index=True, unique=False)
     authors = db.relationship("Author", secondary=BookAuthor, back_populates="books")
     genres = db.relationship("Genre", secondary=BookGenre, back_populates="books")
-    providerOrder = db.relationship("OrderToProvider", secondary=OrderPBooks, back_populates="books")
-    customerOrder = db.relationship("OrderFromCustomer", secondary=OrderCBooks, back_populates="books")
-    providerPrices = db.relationship("Provider", secondary=ProvPrice, back_populates="books")
+    providerOrder = db.relationship("OrderPbooks", back_populates="book")
+    customerOrder = db.relationship("OrderCbooks", back_populates="book")
+    providerPrices = db.relationship("ProvPrices", back_populates="book")
     warehouse = db.relationship("Warehouse", uselist=False, back_populates="book")

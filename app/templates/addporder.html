@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+
+{% if length != 0 %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Book</th>
+      <th scope="col">Price</th>
+      <th scope="col">Buy</th>
+    </tr>
+    </thead>
+    <tbody>
+      {% for book in Books %}
+      <tr>
+        <td>{{ book[0] }}</td>
+        <td>{{ book[1]}}</td>
+        <td>
+          <form action="{{ url_for('addProv') }}" method="post">
+            <input type="hidden" name="buyP" value="{{ book[2] }}"/>
+            <input type="hidden" name="Pid" value="{{ Pid }}"/>
+            <input type="submit" class="btn btn-outline-primary" value="Add to cart!"/>
+          </form>
+        </td>
+       </tr>
+{% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% if lengthCart != 0 %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Book</th>
+      <th scope="col">Price</th>
+      <th scope="col">Amount</th>
+      <th scope="col">Total</th>
+      <th scope="col">Delete</th>
+    </tr>
+    </thead>
+    <tbody>
+      {% for book in booksCart %}
+      <tr>
+        <td>{{ book[1] }}</td>
+        <td>{{ book[2] }}</td>
+        <td>{{ book[3] }}</td>
+        <td>{{ book[3]*book[2]}}</td>
+        <td>
+          <form action="{{ url_for('deleteP') }}" method="post">
+            <input type="hidden" name="delP" value="{{ book[0] }}"/>
+            <input type="hidden" name="Pid" value="{{ Pid }}"/>
+            <input type="submit" class="btn btn-danger" value="Delete!"/>
+          </form>
+        </td>
+       </tr>
+{% endfor %}
+  </tbody>
+</table>
+<div class="row">
+  <div class="col-sm">
+    <form action="{{ url_for('delete_all_P') }}" method="post">
+      <input type="hidden" name="Pid" value="{{ Pid }}"/>
+      <input type="submit" class="btn btn-danger btn-lg btn-block" value="Empty cart"/>
+    </form>
+  </div>
+  <div class="col-sm">
+    <form action="{{ url_for('make_order_P') }}" method="post">
+      <input type="hidden" name="Pid" value="{{ Pid }}"/>
+      <input type="submit" class="btn btn-outline-primary btn-lg btn-block" value="Make an order!"/>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

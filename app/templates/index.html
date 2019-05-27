@@ -2,6 +2,32 @@
 
 {% block content %}
 
+    <h1>Search</h1>
+    <form action="" method="post">
+        {{ Search.hidden_tag() }}
+        <div class="row">
+          <div class="col-md">
+            <p>
+              {{ Search.authors.label }}<br>
+              {{ Search.authors(size=1) }}<br>
+              {% for error in Search.authors.errors %}
+              <span style="color: green;">[{{ error }}]</span>
+              {% endfor %}
+            </p>
+          </div>
+          <div class="col-md">
+            <p>
+              {{ Search.genres.label }}<br>
+              {{ Search.genres(size=1) }}<br>
+              {% for error in Search.genres.errors %}
+              <span style="color: green;">[{{ error }}]</span>
+              {% endfor %}
+            </p>
+          </div>
+        </div>
+        <p>{{ Search.submit()}}</p>
+    </form>
+
 {% if length != 0 %}
 <table class="table">
   <thead>

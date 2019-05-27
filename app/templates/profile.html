@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if orderlen != 0 %}
+<h1>Your orders</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Books</th>
+      <th scope="col">Number</th>
+      <th scope="col">Status</th>
+    </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+      <tr>
+        <td>
+          {% for book in order.books %}
+            <p>{{ book.book.name }}</p>
+          <br>
+          {% endfor %}
+        </td>
+        <td>
+          {% for book in order.books %}
+            <p>{{ book.numberOfBooks }}</p>
+          <br>
+          {% endfor %}
+        </td>
+        <td>
+          {% if order.EmployeeId == None %}
+            <p>In progress!</p>
+          {% else %}
+            <p>Ready!</p>
+          {% endif %}
+        </td>
+       </tr>
+{% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% if billen != 0 %}
+<h1>Your bills</h1>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Order Number</th>
+      <th scope="col">Total</th>
+    </tr>
+    </thead>
+    <tbody>
+      {% for bill in bills %}
+      <tr>
+        <td>
+          {{ bill.OrderCId}}
+        </td>
+        <td>
+          {{ bill.sum}}₽
+        </td>
+       </tr>
+{% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
