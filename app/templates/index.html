@@ -9,7 +9,7 @@
           <div class="col-md">
             <p>
               {{ Search.authors.label }}<br>
-              {{ Search.authors(size=1) }}<br>
+              {{ Search.authors(size=3) }}<br>
               {% for error in Search.authors.errors %}
               <span style="color: green;">[{{ error }}]</span>
               {% endfor %}
@@ -18,7 +18,7 @@
           <div class="col-md">
             <p>
               {{ Search.genres.label }}<br>
-              {{ Search.genres(size=1) }}<br>
+              {{ Search.genres(size=3) }}<br>
               {% for error in Search.genres.errors %}
               <span style="color: green;">[{{ error }}]</span>
               {% endfor %}
@@ -43,24 +43,24 @@
     <tbody>
       {% for book in books %}
       <tr>
-        <td>{{ book.name }}</td>
-        <td>{{ book.price}}</td>
-        <td>{{ book.year }}</td>
+        <td>{{ book[0].name }}</td>
+        <td>{{ book[0].price}}</td>
+        <td>{{ book[0].year }}</td>
         <td>
-        {% for author in book.authors %}
+        {% for author in book[0].authors %}
           {{ author.name +' '+ author.surname }}
           <br>
         {% endfor %}
         </td>
         <td>
-        {% for genre in book.genres %}
+        {% for genre in book[0].genres %}
           {{ genre.name }}
           <br>
         {% endfor %}
         </td>
         <td>
           <form action="{{ url_for('add') }}" method="post">
-            <input type="hidden" name="buy" value="{{ book.id }}"/>
+            <input type="hidden" name="buy" value="{{ book[0].id }}"/>
             <input type="submit" class="btn btn-outline-primary" value="Add to cart!"/>
           </form>
         </td>

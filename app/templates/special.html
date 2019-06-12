@@ -28,14 +28,14 @@
         </p>
         <p>
             {{ BookForm.genres.label }}<br>
-            {{ BookForm.genres(size=1) }}<br>
+            {{ BookForm.genres(size=3) }}<br>
             {% for error in BookForm.genres.errors %}
             <span style="color: green;">[{{ error }}]</span>
             {% endfor %}
         </p>
         <p>
             {{ BookForm.authors.label }}<br>
-            {{ BookForm.authors(size=1) }}<br>
+            {{ BookForm.authors(size=3) }}<br>
             {% for error in BookForm.authors.errors %}
             <span style="color: green;">[{{ error }}]</span>
             {% endfor %}
