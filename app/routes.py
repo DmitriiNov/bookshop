@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, abort, session
-from app import app, db
+from app import app
 from functools import wraps
 from app.forms import LoginForm, RegistrationForm, AddAuthor, AddGenre, AddProvider, AddBook, Delete, AddProvPrice, BookSearch, MakePOrder
 from flask_login import current_user, login_user, logout_user, login_required
