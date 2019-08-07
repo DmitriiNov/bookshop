@@ -3,7 +3,7 @@ from app import app
 from functools import wraps
 from app.forms import LoginForm, RegistrationForm, AddAuthor, AddGenre, AddProvider, AddBook, Delete, AddProvPrice, BookSearch, MakePOrder
 from flask_login import current_user, login_user, logout_user, login_required
-from app.models import User, Provider, Genre, Author, Book, BookAuthor, Warehouse, OrderToProvider, ProviderBill
+from app.models import User, Provider, Genre, Author, Book, BookAuthor, Warehouse, OrderToProvider
 from app.models import BookGenre, OrderFromCustomer, OrderCbooks, CustomerBill, ProvPrices, OrderPbooks
 from werkzeug.urls import url_parse
 
@@ -13,26 +13,6 @@ def sess():
     else:
         return 0
 
-def sortBooks(books):
-    Books=[]
-    for i in books:
-        sum = 0
-        orders = OrderCbooks.query.filter_by(BookId=i.id).all()
-        for k in orders:
-            sum+=k.numberOfBooks
-        Books.append([i, sum])
-    Books.sort(key=mysortBooks)
-    Books.reverse()
-    return Books
-
-def empl():
-    if current_user.is_authenticated:
-        if current_user.isEmployee:
-            return 1
-        else: return 0
-    else: return 0
-def mysortBooks(x):
-    return x[1]
 def mysort(x):
     return x[0].id
 def mysortP(x):
@@ -55,15 +35,6 @@ def login_required(role = False):
 def index():
     Search = BookSearch(prefix="Search")
     books = Book.query.all()
-    Books = []
-    for i in books:
-        sum = 0
-        orders = OrderCbooks.query.filter_by(BookId=i.id).all()
-        for k in orders:
-            sum+=k.numberOfBooks
-        Books.append([i, sum])
-    Books.sort(key=mysortBooks)
-    Books.reverse()
     genres= [(c.id, c.name) for c in Genre.query.all()]
     authors= [(c.id, (c.name+' '+c.surname)) for c in Author.query.all()]
     Search.genres.choices = genres
@@ -75,15 +46,11 @@ def index():
             books = Book.query.all()
         elif gen != [] and aut == []:
             books = Book.query.filter(Book.genres.any(Genre.id.in_(gen))).all()
-            Books = sortBooks(books)
         elif gen == [] and aut != []:
             books = Book.query.filter(Book.authors.any(Author.id.in_(aut))).all()
-            Books = sortBooks(books)
-        else:
-            books = Book.query.filter((Book.genres.any(Genre.id.in_(gen))), (Book.authors.any(Author.id.in_(aut)))).all()
-            Books = sortBooks(books)
-    length = len(Books)
-    return render_template("index.html",emp=empl(), title='Home Page', books=Books, length=length, ses=sess(), Search=Search)
+        else: books = Book.query.filter((Book.genres.any(Genre.id.in_(gen))), (Book.authors.any(Author.id.in_(aut)))).all()
+    length = len(books)
+    return render_template("index.html", title='Home Page', books=books, length=length, ses=sess(), Search=Search)
 
 @app.route('/addporder/<int:Pid>', methods=['GET', 'POST'])
 @login_required(role=True)
@@ -113,7 +80,7 @@ def addporder(Pid):
         booksnew = []
         lengthCart = len(booksnew)
 
-    return render_template("addporder.html",emp=empl(), ses=sess(), Books=listBooks,
+    return render_template("addporder.html", ses=sess(), Books=listBooks,
      length=len(listBooks), Pid=Pid, lengthCart=lengthCart, booksCart=booksnew, )
 
 
@@ -213,7 +180,7 @@ def special():
             db.session.commit()
         DeleteForm.id.data=''
         DeleteForm.table.data=[]
-    return render_template("special.html",emp=empl(), title='Home Page', GenreForm=GenreForm,
+    return render_template("special.html", title='Home Page', GenreForm=GenreForm,
     AuthorForm = AuthorForm, ProviderForm = ProviderForm, BookForm = BookForm,
     DeleteForm = DeleteForm,AddPrice=AddPrice, MakeOrder=MakeOrder, ses=sess())
 
@@ -232,7 +199,7 @@ def login():
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
-    return render_template("login.html",emp=empl(), title='Sign in', form=form, ses=sess())
+    return render_template("login.html", title='Sign in', form=form, ses=sess())
 
 @app.route('/logout')
 def logout():
@@ -252,7 +219,7 @@ def register():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
-    return render_template('reg.html',emp=empl(), title='Register', form=form, ses=sess())
+    return render_template('reg.html', title='Register', form=form, ses=sess())
 
 @app.route('/add', methods=['POST', 'GET'])
 def add():
@@ -303,20 +270,8 @@ def deleteP():
 @app.route('/orderscheck', methods=['POST', 'GET'])
 @login_required(role=True)
 def orderscheck():
-    order = OrderFromCustomer.query.filter_by(EmployeeId=None).all()
-    orders = []
-    for i in order:
-        pers = User.query.filter_by(id=i.CustomerId).first()
-        orders.append([pers.name+' '+pers.surname, pers.phone, i])
-    length = len(orders)
-    provOrder = OrderToProvider.query.filter_by(EmployeeId= current_user.id).all()
-    provOrders = []
-    for i in provOrder:
-        prov = Provider.query.filter_by(id=i.ProviderId).first()
-        provOrders.append([prov.name, prov.phone, i.bill])
-    billslen = len(provOrders)
-    return render_template('orders.html',billslen=billslen,emp=empl(),
-    provOrders=provOrders, orders=orders, length=length, ses=sess())
+    
+    return render_template('orders.html', ses=sess())
 
 @app.route('/orderprov', methods=['POST', 'GET'])
 @login_required(role=True)
@@ -328,14 +283,11 @@ def make_order_P():
         db.session.add(order)
         db.session.commit()
         books =[]
-        price = 0
         if 'pcart'+str(Pid) in session:
             for i in session['pcart'+str(Pid)]:
-                bookWarehouse = Warehouse.query.filter_by(BookId=i).first()
+                bookWarehouse = Warehouse.query.filter_by(id=i).first()
                 bookWarehouse.numberOfBooks +=1
                 book = Book.query.filter_by(id=i).first()
-                provprice = ProvPrices.query.filter_by(BookId=book.id, ProviderId=Pid).first()
-                price+=provprice.Price
                 books.append(book)
             booksnew = []
             for i in set(books):
@@ -346,9 +298,7 @@ def make_order_P():
                 BookId=i[0].id, numberOfBooks=i[1])
                 db.session.add(stat)
                 db.session.commit()
-            bill = ProviderBill(sum = price)
-            order.bill = bill
-            db.session.commit()
+
             for i in reversed(range(0,len(session['pcart'+str(Pid)]))):
                 session['pcart'+str(Pid)].pop(i)
         return redirect(url_for('profile'))
@@ -374,57 +324,32 @@ def delete_all_P():
         session['pcart'+str(Pid)].pop(i)
     return redirect(url_for('addporder', Pid=Pid))
 
-@app.route('/zorder', methods=['POST', 'GET'])
+@app.route('/order', methods=['POST', 'GET'])
 def make_order():
     session.modified = True
-    code = request.form["mak"]
-    if current_user.is_authenticated and code == '213':
+    if current_user.is_authenticated:
         order = OrderFromCustomer(CustomerId=current_user.id)
         db.session.add(order)
         db.session.commit()
         books =[]
         if 'cart' in session:
-            if session['cart']:
-                for i in session['cart']:
-                    book = Book.query.filter_by(id=i).first()
-                    books.append(book)
-                    bookWarehouse = Warehouse.query.filter_by(id=i).first()
-                    bookWarehouse.numberOfBooks -=1
-                booksnew = []
-                for i in set(books):
-                    booksnew.append([i,books.count(i)])
-                booksnew.sort(key=mysort)
-                for i in booksnew:
-                    stat = OrderCbooks(OrderCId=order.id,
-                    BookId=i[0].id, numberOfBooks=i[1])
-                    db.session.add(stat)
-                    db.session.commit()
-                for i in reversed(range(0,len(session['cart']))):
-                    session['cart'].pop(i)
+            for i in session['cart']:
+                book = Book.query.filter_by(id=i).first()
+                books.append(book)
+            booksnew = []
+            for i in set(books):
+                booksnew.append([i,books.count(i)])
+            booksnew.sort(key=mysort)
+            for i in booksnew:
+                stat = OrderCbooks(OrderCId=order.id,
+                BookId=i[0].id, numberOfBooks=i[1])
+                db.session.add(stat)
+                db.session.commit()
+            for i in reversed(range(0,len(session['cart']))):
+                session['cart'].pop(i)
         return redirect(url_for('thanks'))
     else:
         return redirect(url_for('login'))
-
-
-
-@app.route('/zbill', methods=['POST', 'GET'])
-def makebill():
-    session.modified = True
-    code = request.form["mak"]
-    orderid = request.form["order"]
-    if current_user.is_authenticated and code == '213':
-        order = OrderFromCustomer.query.filter_by(id=orderid).first()
-        order.EmployeeId = current_user.id
-        price = 0
-        for i in order.books:
-            price+= i.book.price * i.numberOfBooks
-        bill = CustomerBill(sum=price)
-        order.bill = bill
-        db.session.commit()
-        return redirect(url_for('orderscheck'))
-    else:
-        return redirect(url_for('orderscheck'))
-
 
 @app.route('/cart', methods=['POST', 'GET'])
 def cart():
@@ -443,7 +368,7 @@ def cart():
         session['cart'] = []
         booksnew = []
         length = len(booksnew)
-    return render_template('cart.html',emp=empl(), title='Cart', books=booksnew, length=length, ses=sess())
+    return render_template('cart.html', title='Cart', books=booksnew, length=length, ses=sess())
 
 
 @app.route('/profile', methods=['POST', 'GET'])
@@ -457,7 +382,7 @@ def profile():
                 bills.append(i.bill)
         billen = len(list(bills))
         orderlen = len(list(orders))
-        return render_template('profile.html',emp=empl(), title='Cart', ses=sess(), user=current_user,
+        return render_template('profile.html', title='Cart', ses=sess(), user=current_user,
         orders=orders, bills=bills, billen=billen, orderlen=orderlen, num=numberOfBooks)
     else:
         return redirect(url_for('login'))
@@ -476,4 +401,4 @@ def registerforemployee():
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
-    return render_template('regforemployee.html',emp=empl(), title='Register', form=form, ses=sess())
+    return render_template('regforemployee.html', title='Register', form=form, ses=sess())
